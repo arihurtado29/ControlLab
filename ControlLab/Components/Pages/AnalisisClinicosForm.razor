@@ -1,0 +1,109 @@
+﻿@page "/analisisClinicos/nuevo"
+@page "/analisisClinicos/editar/{id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+@inject IControlAnalisisClinicos _controlAnalisisClinicos
+
+<PageTitle>Análisis Clínicos</PageTitle>
+
+<style>
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+</style>
+
+
+<div class="header">
+    <img src="logo/logo.png" alt="ControlLab Logo" class="logo" />
+    <h1 style="font-style: italic;">@_mensaje Análisis Clínico</h1>
+</div>
+
+<br />
+
+<EditForm Model="_analisisClinico" FormName="frmAnalisisClinico" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-2 col-form-label"><strong>Fecha</strong></label>
+        <div class="col-sm-10">
+            <InputDate TValue="DateTime" class="form-control" id="txtFecha" @bind-Value="_analisisClinico.Fecha" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <ValidationMessage For="()=>_analisisClinico.Fecha" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtEstudio" class="col-sm-2 col-form-label"><strong>Estudio</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtEstudio" placeholder="Ej. Glucosa" @bind-Value="_analisisClinico.Estudio"/>
+            <ValidationMessage For="()=>_analisisClinico.Estudio" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="txtTipodeMuestra" class="form-label"><strong>Tipo de muestra</strong></label>
+        <InputRadioGroup @bind-Value="_analisisClinico.TipodeMuestra" Name="rdgTipodeMuestra" class="form-control" id="txtTipodeMuestra">
+            <InputRadio Value="@("Sangre")" /> Sangre
+            <InputRadio Value="@("Orina")" class="ms-3" /> Orina
+            <InputRadio Value="@("Heces")" class="ms-3" /> Heces
+        </InputRadioGroup>
+        <ValidationMessage For="()=>_analisisClinico.TipodeMuestra" />
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtResultados" class="col-sm-2 col-form-label"><strong>Resultados</strong></label>
+        <div class="col-sm-10">
+            <InputTextArea class="form-control" id="txtResultados" @bind-Value="_analisisClinico.Resultados" placeholder="Escribe aquí el o los resultados..." rows="5" />
+            <ValidationMessage For="()=>_analisisClinico.Resultados" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private AnalisisClinico _analisisClinico = new();
+    private string _mensaje = "Nuevo ";
+
+    // Iniciar la fecha en el día actual
+    protected override void OnInitialized()
+    {
+        _analisisClinico.Fecha = DateTime.Today;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id > 0)
+        {
+            _mensaje = "Modificar ";
+            _analisisClinico = await _controlAnalisisClinicos.Get(id);
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (id > 0)
+        {
+            _analisisClinico.Id = id;
+            await _controlAnalisisClinicos.Update(_analisisClinico);
+        }
+        else
+        {
+            await _controlAnalisisClinicos.Add(_analisisClinico);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigationManager.NavigateTo("/analisisClinicos"); 
+    }
+}
