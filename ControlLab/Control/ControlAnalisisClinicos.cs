@@ -30,13 +30,15 @@ namespace ControlLab.Control
 
         public async Task<List<AnalisisClinico>> GetAll()
         {
-            return await _context.AnalisisClinicos.AsNoTracking().ToListAsync();
+            return await _context.AnalisisClinicos.Include(p=>p.Paciente).Include(q => q.Quimico).AsNoTracking().ToListAsync();
+            //Modiificar esto puede ser que este sea el error
         }
 
         public async Task Update(AnalisisClinico analisisClinico)
         {
             _context.Entry(analisisClinico).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            
         }
     }
 }

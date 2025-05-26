@@ -1,0 +1,86 @@
+﻿@page "/quimicos/nuevo"
+@page "/quimicos/editar/{id:int}"
+@inject NavigationManager _navigationManager
+@inject IControlQuimicos _controlQuimicos
+@rendermode InteractiveServer
+
+<PageTitle>Químicos</PageTitle>
+
+<style>
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+</style>
+
+
+<div class="header">
+    <img src="logo/logo.png" alt="ControlLab Logo" class="logo" />
+    <h1 style="font-style: italic;">@_mensaje Químico</h1>
+</div>
+
+<br />
+
+<EditForm Model="_quimico" FormName="frmQuimico" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3 row">
+        <label for="txtNombre" class="col-sm-2 col-form-label"><strong>Nombre</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtNombre" @bind-Value="_quimico.Nombre" />
+            <ValidationMessage For="@(() => _quimico.Nombre)" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtCedula" class="col-sm-2 col-form-label"><strong>Cédula</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtCedula" @bind-Value="_quimico.Cedula" />
+            <ValidationMessage For="@(() => _quimico.Cedula)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private Quimico _quimico = new Quimico();
+    private string _mensaje = "Nuevo";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id > 0)
+        {
+            _mensaje = "Modificar";
+            _quimico = await _controlQuimicos.Get(id);
+        }
+    }
+
+    private void Cancelar()
+    {
+        _navigationManager.NavigateTo("/quimicos");
+    }
+
+    private async Task Guardar()
+    {
+        if (id > 0)
+        {
+            _quimico.Id = id;
+            await _controlQuimicos.Update(_quimico);
+        }
+        else
+        {
+            await _controlQuimicos.Add(_quimico);
+        }
+        Cancelar();
+    }
+}

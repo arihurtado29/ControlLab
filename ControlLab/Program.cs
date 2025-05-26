@@ -16,6 +16,8 @@ builder.Services.AddDbContext<BasedeDatosDbContext>
                 "DefaultConnection")));
 
 builder.Services.AddScoped<IControlAnalisisClinicos, ControlAnalisisClinicos>();
+builder.Services.AddScoped<IControlPacientes, ControlPacientes>();
+builder.Services.AddScoped<IControlQuimicos, ControlQuimicos>();
 
 var app = builder.Build();
 

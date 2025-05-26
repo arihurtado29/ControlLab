@@ -11,5 +11,7 @@ namespace ControlLab.Data
         {
         }
         public DbSet<AnalisisClinico> AnalisisClinicos { get; set; }
+        public DbSet<Paciente> Pacientes { get; set; }
+        public DbSet<Quimico> Quimicos { get; set; }
     }
 }

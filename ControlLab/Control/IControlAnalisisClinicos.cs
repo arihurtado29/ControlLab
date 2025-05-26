@@ -6,6 +6,7 @@ namespace ControlLab.Control
     {
         Task<List<AnalisisClinico>> GetAll();
         Task<AnalisisClinico> Get(int id);
+
         Task Add(AnalisisClinico analisisClinico);
         Task Update(AnalisisClinico analisisClinico);
         Task Delete(int id);

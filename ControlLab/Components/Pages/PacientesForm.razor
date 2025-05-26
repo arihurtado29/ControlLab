@@ -1,0 +1,124 @@
+﻿@page "/pacientes/nuevo"
+@page "/pacientes/editar/{id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+@inject IControlPacientes _controlPacientes
+
+<PageTitle>Pacientes</PageTitle>
+
+<style>
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+</style>
+
+
+<div class="header">
+    <img src="logo/logo.png" alt="ControlLab Logo" class="logo" />
+    <h1 style="font-style: italic;">@_mensaje Paciente</h1>
+</div>
+
+<br />
+
+<EditForm Model="_paciente" FormName="frmPaciente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="mb-3 row">
+        <label for="txtFecha" class="col-sm-2 col-form-label"><strong>Fecha</strong></label>
+        <div class="col-sm-10">
+            <InputDate TValue="DateTime" class="form-control" id="txtFecha" @bind-Value="_paciente.Fecha" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <ValidationMessage For="()=>_paciente.Fecha" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtNombre" class="col-sm-2 col-form-label"><strong>Nombre</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtNombre" @bind-Value="_paciente.Nombre" />
+            <ValidationMessage For="()=>_paciente.Nombre" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtEdad" class="col-sm-2 col-form-label"><strong>Edad</strong></label>
+        <div class="col-sm-10">
+            <InputNumber class="form-control" id="txtEdad" @bind-Value="_paciente.Edad" />
+            <ValidationMessage For="()=>_paciente.Edad" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="txtSexo" class="form-label"><strong>Sexo</strong></label>
+        <InputRadioGroup @bind-Value="_paciente.Sexo" Name="rdgSexo" class="form-control" id="txtSexo">
+            <InputRadio Value="@("Femenino")" /> Femenino
+            <InputRadio Value="@("Masculino")" class="ms-3" /> Masculino
+        </InputRadioGroup>
+        <ValidationMessage For="()=>_paciente.Sexo" />
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtTelefono" class="col-sm-2 col-form-label"><strong>Teléfono</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtTelefono" @bind-Value="_paciente.Telefono" />
+            <ValidationMessage For="()=>_paciente.Telefono" />
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label for="txtCorreo" class="col-sm-2 col-form-label"><strong>Correo</strong></label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="txtCorreo" @bind-Value="_paciente.Correo" />
+            <ValidationMessage For="()=>_paciente.Correo" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private Paciente _paciente = new();
+    private string _mensaje = "Nuevo ";
+
+    // Iniciar la fecha en el día actual
+    protected override void OnInitialized()
+    {
+        _paciente.Fecha = DateTime.Today;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id > 0)
+        {
+            _mensaje = "Modificar ";
+            _paciente = await _controlPacientes.Get(id);
+        }
+    }
+    
+    private void Cancelar()
+    {
+        _navigationManager.NavigateTo("/pacientes");
+    }
+
+    private async Task Guardar()
+    {
+        if (id > 0)
+        {
+            _paciente.Id = id;
+            await _controlPacientes.Update(_paciente);
+        }
+        else
+        {
+            await _controlPacientes.Add(_paciente);
+        }
+        Cancelar();
+    }
+}
